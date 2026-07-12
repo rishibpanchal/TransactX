@@ -1,0 +1,23 @@
+# Build target
+target/
+.maven/
+dependency-reduced-pom.xml
+
+# IDE files
+.idea/
+*.iml
+*.iws
+.project
+.classpath
+.settings/
+.vscode/
+
+# Local configuration credentials (ignored from commits)
+src/main/resources/application.yml
+
+# Logs
+*.log
+
+# System files
+.DS_Store
+Thumbs.db

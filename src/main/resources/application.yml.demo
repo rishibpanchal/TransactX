@@ -1,0 +1,80 @@
+spring:
+  application:
+    name: transactx-api
+  profiles:
+    active: local
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/transactx}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      ssl:
+        enabled: ${REDIS_SSL:false}
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000 # 10 minutes cache TTL
+      cache-null-values: false
+
+  task:
+    execution:
+      pool:
+        core-size: 10
+        max-size: 50
+        keep-alive: 60s
+    scheduling:
+      pool:
+        size: 5
+
+# JWT Security Configurations
+security:
+  jwt:
+    secret: ${JWT_SECRET:9a4f2c8d3b7a1e5f8g0h2i4j6k8l0m2n4o6p8q0r2s4t6u8v0w2x4y6z8a0b2c4d}
+    expiration: ${JWT_EXPIRATION:3600000} # 1 hour in ms
+    refresh-expiration: ${REFRESH_TOKEN_EXPIRATION:604800000} # 7 days in ms
+
+# Spring Boot Actuator Endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+# Server Port
+server:
+  port: 8080
+  error:
+    include-message: always
+
+# Logging configuration with structured correlation IDs
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - [Req: %X{X-Request-Id:-}] [Tx: %X{X-Transaction-Id:-}] - %msg%n"
+  level:
+    root: INFO
+    com.transactx.api: DEBUG
+    org.springframework.transaction: DEBUG
