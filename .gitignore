@@ -13,7 +13,7 @@ dependency-reduced-pom.xml
 .vscode/
 
 # Local configuration credentials (ignored from commits)
-src/main/resources/application.yml
+src/main/resources/application-local.yml
 
 # Logs
 *.log
