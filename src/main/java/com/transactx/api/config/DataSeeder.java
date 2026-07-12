@@ -40,7 +40,7 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        if (userRepository.existsByUsername("customer1")) {
+        if (userRepository.existsByUsername("customer1") || transactionRepository.count() > 0) {
             // Data seeder already executed previously
             return;
         }
@@ -118,7 +118,7 @@ public class DataSeeder implements CommandLineRunner {
 
         // 5. Seed Core Ledger Events
         // Log event 1: Customer 1 initial deposit
-        String txRef1 = "TX-REF-" + System.currentTimeMillis() + "-a1";
+        String txRef1 = "TX-REF-" + UUID.randomUUID().toString().substring(0, 15);
         Transaction tx1 = Transaction.builder()
                 .transactionRef(txRef1)
                 .account(acc1)
@@ -151,7 +151,7 @@ public class DataSeeder implements CommandLineRunner {
         auditLogRepository.save(al1);
 
         // Log event 2: Customer 2 initial deposit
-        String txRef2 = "TX-REF-" + System.currentTimeMillis() + "-a2";
+        String txRef2 = "TX-REF-" + UUID.randomUUID().toString().substring(0, 15);
         Transaction tx2 = Transaction.builder()
                 .transactionRef(txRef2)
                 .account(acc2)
@@ -184,7 +184,7 @@ public class DataSeeder implements CommandLineRunner {
         auditLogRepository.save(al2);
 
         // Log event 3: Fund transfer credit/debit leg
-        String txRef3 = "TX-REF-" + System.currentTimeMillis() + "-a3";
+        String txRef3 = "TX-REF-" + UUID.randomUUID().toString().substring(0, 15);
         Transaction tx3Out = Transaction.builder()
                 .transactionRef(txRef3)
                 .account(acc1)
@@ -239,7 +239,7 @@ public class DataSeeder implements CommandLineRunner {
         auditLogRepository.save(al3);
 
         // Log event 4: ATM cash withdrawal
-        String txRef4 = "TX-REF-" + System.currentTimeMillis() + "-a4";
+        String txRef4 = "TX-REF-" + UUID.randomUUID().toString().substring(0, 15);
         Transaction tx4 = Transaction.builder()
                 .transactionRef(txRef4)
                 .account(acc1)
