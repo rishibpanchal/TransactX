@@ -112,7 +112,7 @@ export const AtmSimulator: React.FC = () => {
     },
   });
 
-  // Query: Get my accounts
+  // Query: Get my accounts (Strict RBAC: Only accounts owned by current user)
   const { data: accounts = [], isLoading: loadingAccounts } = useQuery({
     queryKey: ['myAccounts'],
     queryFn: async () => {
@@ -122,6 +122,15 @@ export const AtmSimulator: React.FC = () => {
         setSelectedAccountNum(data[0].accountNumber);
       }
       return data;
+    },
+  });
+
+  // Query: Get verified transfer recipients directory (Sanitized: NO balances exposed)
+  const { data: recipients = [] } = useQuery({
+    queryKey: ['transferRecipients'],
+    queryFn: async () => {
+      const res = await api.get('/api/v1/accounts/recipients');
+      return res.data;
     },
   });
 
@@ -500,11 +509,11 @@ export const AtmSimulator: React.FC = () => {
                   required
                 >
                   <option value="" className="bg-slate-900 text-slate-400">-- Select Destination Account --</option>
-                  {accounts
-                    .filter((a: any) => a.accountNumber !== selectedAccountNum)
-                    .map((a: any) => (
-                      <option key={a.id} value={a.accountNumber} className="bg-slate-900 text-slate-100">
-                        {a.accountNumber} • {a.ownerName} ({a.accountType}) - Bal: ₹{Number(a.balance).toLocaleString()}
+                  {recipients
+                    .filter((r: any) => r.accountNumber !== selectedAccountNum)
+                    .map((r: any) => (
+                      <option key={r.accountNumber} value={r.accountNumber} className="bg-slate-900 text-slate-100">
+                        {r.accountNumber} • {r.ownerName} ({r.accountType})
                       </option>
                     ))}
                 </select>

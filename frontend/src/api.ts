@@ -161,10 +161,44 @@ async function handleSimulatedRequest(config: InternalAxiosRequestConfig | Axios
     return makeResponse({ message: 'Logged out successfully' });
   }
 
-  // Accounts: Get My Accounts (Returns all bank accounts with owner & classification)
+  const isAdminOrManager = currentUser.roles.some((r) =>
+    ['ROLE_ADMIN', 'ROLE_MANAGER', 'ADMIN', 'MANAGER'].includes(r)
+  );
+
+  // Accounts: Get My Accounts (Strict RBAC: Customers only see their own accounts; Admins see all)
   if (pathname === '/api/v1/accounts/my' && method === 'get') {
-    const accounts = simulationDb.getAllAccounts();
+    const accounts = simulationDb.getAccountsForUser(currentUser.id);
     return makeResponse(accounts);
+  }
+
+  // Accounts: Transfer Recipients Directory (Sanitized: NO balances, only name & account number)
+  if (pathname === '/api/v1/accounts/recipients' && method === 'get') {
+    const recipients = simulationDb.getTransferRecipients();
+    return makeResponse(recipients);
+  }
+
+  // Accounts: Freeze / Unfreeze (Requires MANAGER/ADMIN privilege)
+  if (pathname.includes('/freeze') && method === 'put') {
+    if (!isAdminOrManager) {
+      return makeError('Access Denied: Freezing or unfreezing accounts requires MANAGER or ADMIN privilege', 403);
+    }
+    const accNum = pathname.split('/')[4];
+    const freeze = params.freeze === 'true' || body.freeze === true;
+    const acc = simulationDb.findAccountByNumber(accNum);
+    if (!acc) return makeError('Account not found', 404);
+    acc.status = freeze ? 'FROZEN' : 'ACTIVE';
+    return makeResponse(acc);
+  }
+
+  // Accounts: Specific Account Details (RBAC: Customer can only view own account; Admin can view any)
+  if (pathname.startsWith('/api/v1/accounts/') && method === 'get') {
+    const accNum = pathname.split('/').pop() || '';
+    const acc = simulationDb.findAccountByNumber(accNum);
+    if (!acc) return makeError('Account not found', 404);
+    if (acc.userId !== currentUser.id && !isAdminOrManager) {
+      return makeError('Access Denied: You do not have permission to inspect other customer accounts', 403);
+    }
+    return makeResponse(acc);
   }
 
   // Accounts: Create Account
@@ -179,16 +213,24 @@ async function handleSimulatedRequest(config: InternalAxiosRequestConfig | Axios
     return makeResponse(simulationDb.getAtms());
   }
 
-  // ATM: Mini Statement
+  // ATM: Mini Statement (Strict RBAC: Customers only allowed to view statements for accounts they own)
   if (pathname === '/api/v1/atm/statement' && method === 'get') {
     const accNum = params.accountNumber || '';
+    const acc = simulationDb.findAccountByNumber(accNum);
+    if (acc && acc.userId !== currentUser.id && !isAdminOrManager) {
+      return makeError('Access Denied: You do not have permission to view statements for another user account', 403);
+    }
     return makeResponse(simulationDb.getMiniStatement(accNum));
   }
 
-  // ATM: Cash Withdrawal
+  // ATM: Cash Withdrawal (Strict RBAC: Customers can only withdraw from their own account)
   if (pathname === '/api/v1/atm/withdraw' && method === 'post') {
     try {
       const { accountNumber, amount, atmId } = body;
+      const acc = simulationDb.findAccountByNumber(accountNumber);
+      if (acc && acc.userId !== currentUser.id && !isAdminOrManager) {
+        return makeError('Access Denied: You can only withdraw cash from your own bank account', 403);
+      }
       const res = simulationDb.withdrawCash(accountNumber, parseFloat(amount), atmId, currentUser);
       return makeResponse(res);
     } catch (e: any) {
@@ -196,10 +238,14 @@ async function handleSimulatedRequest(config: InternalAxiosRequestConfig | Axios
     }
   }
 
-  // ATM: Cash Deposit
+  // ATM: Cash Deposit (Customers deposit into their own account)
   if (pathname === '/api/v1/atm/deposit' && method === 'post') {
     try {
       const { accountNumber, amount, atmId, denominations } = body;
+      const acc = simulationDb.findAccountByNumber(accountNumber);
+      if (acc && acc.userId !== currentUser.id && !isAdminOrManager) {
+        return makeError('Access Denied: You can only deposit cash into your own bank account', 403);
+      }
       const res = simulationDb.depositCash(accountNumber, parseFloat(amount), atmId, denominations, currentUser);
       return makeResponse(res);
     } catch (e: any) {
@@ -207,14 +253,25 @@ async function handleSimulatedRequest(config: InternalAxiosRequestConfig | Axios
     }
   }
 
-  // ATM: Fund Transfer
+  // ATM: Fund Transfer (Strict RBAC: Source account MUST belong to authenticated customer)
   if (pathname === '/api/v1/atm/transfer' && method === 'post') {
     try {
       const { sourceAccountNumber, destinationAccountNumber, amount } = body;
+      const srcAcc = simulationDb.findAccountByNumber(sourceAccountNumber);
+      if (srcAcc && srcAcc.userId !== currentUser.id && !isAdminOrManager) {
+        return makeError('Access Denied: You can only initiate transfers from accounts you own', 403);
+      }
       const res = simulationDb.transferFunds(sourceAccountNumber, destinationAccountNumber, parseFloat(amount), currentUser);
       return makeResponse(res);
     } catch (e: any) {
       return makeError(e.message || 'Transfer failed');
+    }
+  }
+
+  // --- Strict Supervisor RBAC Guards for /api/v1/admin/* ---
+  if (pathname.startsWith('/api/v1/admin/')) {
+    if (!isAdminOrManager) {
+      return makeError('Access Denied: Requires MANAGER or ADMIN privilege', 403);
     }
   }
 

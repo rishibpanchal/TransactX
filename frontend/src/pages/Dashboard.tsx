@@ -93,19 +93,19 @@ export const Dashboard: React.FC = () => {
 
     statement.forEach((tx: any) => {
       const amt = Math.abs(tx.amount);
-      if (tx.type === 'DEPOSIT' || tx.type === 'TRANSFER_IN') {
+      if (tx.type === 'DEPOSIT' || tx.type === 'TRANSFER_IN' || tx.type === 'SALARY_CREDIT' || tx.type === 'INTEREST_CREDIT') {
         depositSum += amt;
       } else if (tx.type === 'WITHDRAWAL') {
         withdrawSum += amt;
-      } else if (tx.type === 'TRANSFER_OUT') {
+      } else if (tx.type === 'TRANSFER_OUT' || tx.type === 'FEE') {
         transferSum += amt;
       }
     });
 
     return [
-      { name: 'Credits (Deposits/Inflows)', value: depositSum, color: '#10b981' },
-      { name: 'Withdrawals (Atm Out)', value: withdrawSum, color: '#f43f5e' },
-      { name: 'Transfers (Outflows)', value: transferSum, color: '#6366f1' },
+      { name: 'Credits (Deposits, Salary, Yield)', value: depositSum, color: '#10b981' },
+      { name: 'Withdrawals (ATM Dispense)', value: withdrawSum, color: '#f43f5e' },
+      { name: 'Transfers & Outflows (Bills, Rent)', value: transferSum, color: '#6366f1' },
     ].filter(item => item.value > 0);
   };
 
@@ -261,6 +261,7 @@ export const Dashboard: React.FC = () => {
                   <thead>
                     <tr className="border-b border-white/5 text-slate-400 font-semibold text-xs uppercase">
                       <th className="py-3 px-4">Reference</th>
+                      <th className="py-3 px-4">Description</th>
                       <th className="py-3 px-4">Type</th>
                       <th className="py-3 px-4">Status</th>
                       <th className="py-3 px-4 text-right">Amount</th>
@@ -269,12 +270,19 @@ export const Dashboard: React.FC = () => {
                   </thead>
                   <tbody>
                     {statement.map((tx: any) => {
-                      const isCredit = tx.type === 'DEPOSIT' || tx.type === 'TRANSFER_IN' || tx.type === 'INTEREST_CREDIT';
+                      const isCredit = ['DEPOSIT', 'TRANSFER_IN', 'SALARY_CREDIT', 'INTEREST_CREDIT'].includes(tx.type);
                       return (
                         <tr key={tx.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
-                          <td className="py-3 px-4 font-mono text-xs">{tx.transactionRef.substring(0, 15)}...</td>
+                          <td className="py-3 px-4 font-mono text-xs text-slate-400">{tx.transactionRef.substring(0, 15)}...</td>
+                          <td className="py-3 px-4 font-medium text-xs text-slate-200">{tx.description || 'General Banking Transaction'}</td>
                           <td className="py-3 px-4">
-                            <span className="text-xs font-semibold">{tx.type}</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                              isCredit
+                                ? 'bg-emerald-950/60 border-emerald-500/30 text-emerald-300'
+                                : 'bg-rose-950/60 border-rose-500/30 text-rose-300'
+                            }`}>
+                              {tx.type}
+                            </span>
                           </td>
                           <td className="py-3 px-4">
                             <span className={`inline-block w-2 h-2 rounded-full mr-2 ${
@@ -282,13 +290,13 @@ export const Dashboard: React.FC = () => {
                             }`} />
                             <span className="text-xs font-medium text-slate-300">{tx.status}</span>
                           </td>
-                          <td className={`py-3 px-4 text-right font-bold ${
+                          <td className={`py-3 px-4 text-right font-bold font-mono text-xs ${
                             isCredit ? 'text-accent' : 'text-danger'
                           }`}>
-                            {isCredit ? '+' : '-'}₹{tx.amount.toFixed(2)}
+                            {isCredit ? '+' : '-'}₹{tx.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                           </td>
-                          <td className="py-3 px-4 text-right font-semibold text-slate-300">
-                            ₹{tx.afterBalance.toFixed(2)}
+                          <td className="py-3 px-4 text-right font-semibold font-mono text-xs text-slate-300">
+                            ₹{tx.afterBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                           </td>
                         </tr>
                       );
