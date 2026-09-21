@@ -156,20 +156,36 @@ export const AdminDashboard: React.FC = () => {
               </div>
 
               <div className="space-y-3">
-                <input
-                  type="text"
-                  value={sourceAcc}
-                  onChange={(e) => setSourceAcc(e.target.value)}
-                  placeholder="Source Account Number"
-                  className="w-full p-2.5 glass-input text-xs"
-                />
-                <input
-                  type="text"
-                  value={destAcc}
-                  onChange={(e) => setDestAcc(e.target.value)}
-                  placeholder="Destination Account Number"
-                  className="w-full p-2.5 glass-input text-xs"
-                />
+                <div>
+                  <label className="block text-[10px] text-slate-400 font-semibold mb-1">Source Account</label>
+                  <select
+                    value={sourceAcc}
+                    onChange={(e) => setSourceAcc(e.target.value)}
+                    className="w-full p-2.5 glass-input text-xs bg-slate-900 text-white font-mono"
+                  >
+                    <option value="" className="bg-slate-900 text-slate-400">-- Select Source Bank Account --</option>
+                    {stats?.accounts?.map((acc: any) => (
+                      <option key={acc.id} value={acc.accountNumber} className="bg-slate-900 text-slate-100">
+                        {acc.accountNumber} • {acc.ownerName} ({acc.accountType}) - ₹{Number(acc.balance).toLocaleString()}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] text-slate-400 font-semibold mb-1">Destination Account</label>
+                  <select
+                    value={destAcc}
+                    onChange={(e) => setDestAcc(e.target.value)}
+                    className="w-full p-2.5 glass-input text-xs bg-slate-900 text-white font-mono"
+                  >
+                    <option value="" className="bg-slate-900 text-slate-400">-- Select Destination Bank Account --</option>
+                    {stats?.accounts?.map((acc: any) => (
+                      <option key={acc.id} value={acc.accountNumber} className="bg-slate-900 text-slate-100">
+                        {acc.accountNumber} • {acc.ownerName} ({acc.accountType}) - ₹{Number(acc.balance).toLocaleString()}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">

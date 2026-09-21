@@ -490,15 +490,24 @@ export const AtmSimulator: React.FC = () => {
           <form onSubmit={handleTransfer} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Destination Account Number</label>
-                <input
-                  type="text"
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                  Destination Bank Account (Name & Account ID)
+                </label>
+                <select
                   value={destAccountNum}
                   onChange={(e) => setDestAccountNum(e.target.value)}
-                  placeholder="e.g. TX2222222222"
-                  className="w-full p-2.5 glass-input text-sm font-mono"
+                  className="w-full p-2.5 glass-input text-xs bg-slate-900 text-white font-mono"
                   required
-                />
+                >
+                  <option value="" className="bg-slate-900 text-slate-400">-- Select Destination Account --</option>
+                  {accounts
+                    .filter((a: any) => a.accountNumber !== selectedAccountNum)
+                    .map((a: any) => (
+                      <option key={a.id} value={a.accountNumber} className="bg-slate-900 text-slate-100">
+                        {a.accountNumber} • {a.ownerName} ({a.accountType}) - Bal: ₹{Number(a.balance).toLocaleString()}
+                      </option>
+                    ))}
+                </select>
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   <span className="text-[10px] text-slate-500 self-center">Quick pick:</span>
                   {[

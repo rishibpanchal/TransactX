@@ -35,17 +35,21 @@ export const Register: React.FC = () => {
 
   const onSubmit = async (data: RegisterFields) => {
     try {
-      // Map role to single entry array of roles for backend compatibility
       const payload = {
         username: data.username,
         email: data.email,
         fullName: data.fullName,
         password: data.password,
+        role: data.role,
         roles: [data.role],
       };
       await signup(payload);
-      showToast('Account registered successfully', 'success');
-      navigate('/');
+      showToast(`Account registered successfully as ${data.role}!`, 'success');
+      if (data.role === 'ADMIN' || data.role === 'MANAGER') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     } catch (err: any) {
       const errMsg = err.response?.data?.message || 'Registration failed. Try again.';
       showToast(errMsg, 'error');

@@ -107,11 +107,12 @@ async function handleSimulatedRequest(config: InternalAxiosRequestConfig | Axios
 
   // Auth: Register
   if (pathname === '/api/v1/auth/register' && method === 'post') {
-    const { username, email, fullName, password } = body;
+    const { username, email, fullName, password, role, roles } = body;
     if (simulationDb.findUserByUsername(username)) {
       return makeError('Username already taken', 400);
     }
-    const newUser = simulationDb.createUser(username, email, fullName, password);
+    const chosenRole = role || (roles && roles[0]) || 'CUSTOMER';
+    const newUser = simulationDb.createUser(username, email, fullName, password, chosenRole);
     return makeResponse({
       accessToken: 'sim-token-' + newUser.id,
       refreshToken: 'sim-refresh-' + newUser.id,
@@ -160,13 +161,9 @@ async function handleSimulatedRequest(config: InternalAxiosRequestConfig | Axios
     return makeResponse({ message: 'Logged out successfully' });
   }
 
-  // Accounts: Get My Accounts
+  // Accounts: Get My Accounts (Returns all bank accounts with owner & classification)
   if (pathname === '/api/v1/accounts/my' && method === 'get') {
-    let accounts = simulationDb.getAccountsForUser(currentUser.id);
-    if (accounts.length === 0) {
-      // For Admin or empty user accounts, return all system accounts for testing
-      accounts = simulationDb.getDb().accounts;
-    }
+    const accounts = simulationDb.getAllAccounts();
     return makeResponse(accounts);
   }
 

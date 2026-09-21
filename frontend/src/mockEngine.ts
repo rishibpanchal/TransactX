@@ -16,7 +16,7 @@ export interface AccountEntity {
   id: string;
   userId: string;
   accountNumber: string;
-  accountType: string; // 'Checking' | 'Savings' | 'Payroll' | 'Escrow' | 'Treasury Vault'
+  accountType: string;
   ownerName: string;
   balance: number;
   status: 'ACTIVE' | 'FROZEN' | 'CLOSED';
@@ -82,9 +82,9 @@ interface DatabaseSchema {
   version: number;
 }
 
-const STORAGE_KEY = 'transactx_database_v3';
+const STORAGE_KEY = 'transactx_database_v4';
 
-// Rich Initial Seed Data
+// 12 Rich Accounts Across Retail, Corporate & Treasury
 function getInitialSeed(): DatabaseSchema {
   const uCustomer1 = 'u-customer1-jane-doe';
   const uCustomer2 = 'u-customer2-john-smith';
@@ -99,10 +99,12 @@ function getInitialSeed(): DatabaseSchema {
   const acc4Id = 'acc-2222222222';
   const acc5Id = 'acc-2222222223';
   const acc6Id = 'acc-3333333331';
-  const acc7Id = 'acc-4444444441';
-  const acc8Id = 'acc-5555555551';
-  const acc9Id = 'acc-9999999991';
-  const acc10Id = 'acc-9999999992';
+  const acc7Id = 'acc-3333333332';
+  const acc8Id = 'acc-4444444441';
+  const acc9Id = 'acc-4444444442';
+  const acc10Id = 'acc-5555555551';
+  const acc11Id = 'acc-9999999991';
+  const acc12Id = 'acc-9999999992';
 
   const atm1Id = 'b3c2a6f2-1d5b-4395-926b-193c04f98144';
   const atm2Id = 'c4d3b7a1-2e6c-5406-037c-204d15e09255';
@@ -183,8 +185,8 @@ function getInitialSeed(): DatabaseSchema {
       ownerName: 'Jane Doe',
       balance: 47000.0,
       status: 'ACTIVE',
-      version: 4,
-      createdAt: past(240),
+      version: 5,
+      createdAt: past(300),
     },
     {
       id: acc2Id,
@@ -194,30 +196,30 @@ function getInitialSeed(): DatabaseSchema {
       ownerName: 'Jane Doe',
       balance: 125000.0,
       status: 'ACTIVE',
-      version: 2,
-      createdAt: past(200),
+      version: 3,
+      createdAt: past(280),
     },
     {
       id: acc3Id,
       userId: uCustomer1,
       accountNumber: 'TX1111111113',
-      accountType: 'Wealth Portfolio',
+      accountType: 'Wealth Investment Portfolio',
       ownerName: 'Jane Doe',
       balance: 350000.0,
       status: 'ACTIVE',
-      version: 1,
-      createdAt: past(180),
+      version: 2,
+      createdAt: past(260),
     },
     {
       id: acc4Id,
       userId: uCustomer2,
       accountNumber: 'TX2222222222',
-      accountType: 'Retail Checking',
+      accountType: 'Retail Everyday Checking',
       ownerName: 'John Smith',
       balance: 32000.0,
       status: 'ACTIVE',
-      version: 3,
-      createdAt: past(220),
+      version: 4,
+      createdAt: past(290),
     },
     {
       id: acc5Id,
@@ -227,8 +229,8 @@ function getInitialSeed(): DatabaseSchema {
       ownerName: 'John Smith',
       balance: 85000.0,
       status: 'ACTIVE',
-      version: 1,
-      createdAt: past(190),
+      version: 2,
+      createdAt: past(270),
     },
     {
       id: acc6Id,
@@ -238,52 +240,74 @@ function getInitialSeed(): DatabaseSchema {
       ownerName: 'Alex Rivera',
       balance: 64500.0,
       status: 'ACTIVE',
-      version: 2,
-      createdAt: past(160),
+      version: 3,
+      createdAt: past(250),
     },
     {
       id: acc7Id,
+      userId: uCustomer3,
+      accountNumber: 'TX3333333332',
+      accountType: 'Forex Multi-Currency',
+      ownerName: 'Alex Rivera',
+      balance: 180000.0,
+      status: 'ACTIVE',
+      version: 2,
+      createdAt: past(240),
+    },
+    {
+      id: acc8Id,
       userId: uCustomer4,
       accountNumber: 'TX4444444441',
       accountType: 'Tech Corp Corporate Payroll',
       ownerName: 'Priya Sharma',
       balance: 420000.0,
       status: 'ACTIVE',
-      version: 5,
-      createdAt: past(150),
+      version: 6,
+      createdAt: past(280),
     },
     {
-      id: acc8Id,
+      id: acc9Id,
+      userId: uCustomer4,
+      accountNumber: 'TX4444444442',
+      accountType: 'Tech Corp Operating Reserve',
+      ownerName: 'Priya Sharma',
+      balance: 950000.0,
+      status: 'ACTIVE',
+      version: 3,
+      createdAt: past(260),
+    },
+    {
+      id: acc10Id,
       userId: uCustomer5,
       accountNumber: 'TX5555555551',
       accountType: 'Commercial Escrow Account',
       ownerName: 'Marcus Vance',
       balance: 215000.0,
       status: 'ACTIVE',
-      version: 2,
-      createdAt: past(140),
+      version: 3,
+      createdAt: past(230),
     },
     {
-      id: acc9Id,
+      id: acc11Id,
       userId: uAdmin1,
       accountNumber: 'TX9999999991',
       accountType: 'Central Core Liquidity Vault',
       ownerName: 'TransactX Treasury',
       balance: 1500000.0,
       status: 'ACTIVE',
-      version: 1,
-      createdAt: past(300),
+      version: 2,
+      createdAt: past(360),
     },
     {
-      id: acc10Id,
+      id: acc12Id,
       userId: uAdmin1,
       accountNumber: 'TX9999999992',
-      accountType: 'ATM Terminal Float Reserve',
+      accountType: 'ATM Terminal Reserve Float',
       ownerName: 'TransactX Treasury',
       balance: 750000.0,
       status: 'ACTIVE',
-      version: 1,
-      createdAt: past(300),
+      version: 2,
+      createdAt: past(360),
     },
   ];
 
@@ -324,6 +348,10 @@ function getInitialSeed(): DatabaseSchema {
   const tx8 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
   const tx9 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
   const tx10 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
+  const tx11 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
+  const tx12 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
+  const tx13 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
+  const tx14 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
 
   const transactions: TransactionEntity[] = [
     {
@@ -338,7 +366,7 @@ function getInitialSeed(): DatabaseSchema {
       afterBalance: 50000.0,
       amount: 50000.0,
       description: 'Initial Salary Deposit',
-      createdAt: past(200),
+      createdAt: past(240),
     },
     {
       id: crypto.randomUUID(),
@@ -352,7 +380,7 @@ function getInitialSeed(): DatabaseSchema {
       afterBalance: 120000.0,
       amount: 120000.0,
       description: 'Fixed Deposit Maturity Credit',
-      createdAt: past(190),
+      createdAt: past(210),
     },
     {
       id: crypto.randomUUID(),
@@ -366,7 +394,7 @@ function getInitialSeed(): DatabaseSchema {
       afterBalance: 125000.0,
       amount: 5000.0,
       description: 'Quarterly High-Yield Interest Payment',
-      createdAt: past(60),
+      createdAt: past(70),
     },
     {
       id: crypto.randomUUID(),
@@ -380,7 +408,7 @@ function getInitialSeed(): DatabaseSchema {
       afterBalance: 350000.0,
       amount: 350000.0,
       description: 'Mutual Fund Dividend Reinvestment',
-      createdAt: past(170),
+      createdAt: past(190),
     },
     {
       id: crypto.randomUUID(),
@@ -394,7 +422,7 @@ function getInitialSeed(): DatabaseSchema {
       afterBalance: 48000.0,
       amount: 2000.0,
       description: 'Fund Transfer to John Smith (TX2222222222)',
-      createdAt: past(120),
+      createdAt: past(130),
     },
     {
       id: crypto.randomUUID(),
@@ -408,7 +436,7 @@ function getInitialSeed(): DatabaseSchema {
       afterBalance: 32000.0,
       amount: 2000.0,
       description: 'Fund Transfer from Jane Doe (TX1111111111)',
-      createdAt: past(120),
+      createdAt: past(130),
     },
     {
       id: crypto.randomUUID(),
@@ -423,12 +451,12 @@ function getInitialSeed(): DatabaseSchema {
       afterBalance: 47000.0,
       amount: 1000.0,
       description: 'Cash Withdrawal at Main Street Core Branch ATM',
-      createdAt: past(45),
+      createdAt: past(50),
     },
     {
       id: crypto.randomUUID(),
       transactionRef: tx7,
-      accountId: acc7Id,
+      accountId: acc8Id,
       accountNumber: 'TX4444444441',
       userId: uCustomer4,
       type: 'SALARY_CREDIT',
@@ -437,12 +465,26 @@ function getInitialSeed(): DatabaseSchema {
       afterBalance: 420000.0,
       amount: 400000.0,
       description: 'Monthly Corporate Payroll Inward Wire',
-      createdAt: past(90),
+      createdAt: past(95),
     },
     {
       id: crypto.randomUUID(),
       transactionRef: tx8,
-      accountId: acc8Id,
+      accountId: acc9Id,
+      accountNumber: 'TX4444444442',
+      userId: uCustomer4,
+      type: 'DEPOSIT',
+      status: 'SUCCESS',
+      beforeBalance: 0.0,
+      afterBalance: 950000.0,
+      amount: 950000.0,
+      description: 'Series A Venture Reserve Capital Transfer',
+      createdAt: past(180),
+    },
+    {
+      id: crypto.randomUUID(),
+      transactionRef: tx9,
+      accountId: acc10Id,
       accountNumber: 'TX5555555551',
       userId: uCustomer5,
       type: 'DEPOSIT',
@@ -450,12 +492,12 @@ function getInitialSeed(): DatabaseSchema {
       beforeBalance: 15000.0,
       afterBalance: 215000.0,
       amount: 200000.0,
-      description: 'Real Estate Deal Escrow Retention',
-      createdAt: past(80),
+      description: 'Real Estate Commercial Escrow Retention',
+      createdAt: past(85),
     },
     {
       id: crypto.randomUUID(),
-      transactionRef: tx9,
+      transactionRef: tx10,
       accountId: acc6Id,
       accountNumber: 'TX3333333331',
       userId: uCustomer3,
@@ -466,12 +508,40 @@ function getInitialSeed(): DatabaseSchema {
       afterBalance: 64500.0,
       amount: 5500.0,
       description: 'Airport ATM Currency Dispense',
-      createdAt: past(35),
+      createdAt: past(40),
     },
     {
       id: crypto.randomUUID(),
-      transactionRef: tx10,
-      accountId: acc9Id,
+      transactionRef: tx11,
+      accountId: acc7Id,
+      accountNumber: 'TX3333333332',
+      userId: uCustomer3,
+      type: 'DEPOSIT',
+      status: 'SUCCESS',
+      beforeBalance: 0.0,
+      afterBalance: 180000.0,
+      amount: 180000.0,
+      description: 'Overseas Travel Forex Remittance',
+      createdAt: past(150),
+    },
+    {
+      id: crypto.randomUUID(),
+      transactionRef: tx12,
+      accountId: acc5Id,
+      accountNumber: 'TX2222222223',
+      userId: uCustomer2,
+      type: 'DEPOSIT',
+      status: 'SUCCESS',
+      beforeBalance: 0.0,
+      afterBalance: 85000.0,
+      amount: 85000.0,
+      description: 'Emergency Savings Contribution',
+      createdAt: past(160),
+    },
+    {
+      id: crypto.randomUUID(),
+      transactionRef: tx13,
+      accountId: acc11Id,
       accountNumber: 'TX9999999991',
       userId: uAdmin1,
       type: 'DEPOSIT',
@@ -480,7 +550,21 @@ function getInitialSeed(): DatabaseSchema {
       afterBalance: 1500000.0,
       amount: 1500000.0,
       description: 'Central Core Banking Liquidity Allocation',
-      createdAt: past(290),
+      createdAt: past(320),
+    },
+    {
+      id: crypto.randomUUID(),
+      transactionRef: tx14,
+      accountId: acc12Id,
+      accountNumber: 'TX9999999992',
+      userId: uAdmin1,
+      type: 'DEPOSIT',
+      status: 'SUCCESS',
+      beforeBalance: 0.0,
+      afterBalance: 750000.0,
+      amount: 750000.0,
+      description: 'ATM Cassette Fleet Replenishment Reserve',
+      createdAt: past(310),
     },
   ];
 
@@ -492,25 +576,7 @@ function getInitialSeed(): DatabaseSchema {
       entryType: 'CREDIT',
       amount: 50000.0,
       balanceSnapshot: 50000.0,
-      createdAt: past(200),
-    },
-    {
-      id: crypto.randomUUID(),
-      transactionRef: tx2,
-      accountId: acc2Id,
-      entryType: 'CREDIT',
-      amount: 120000.0,
-      balanceSnapshot: 120000.0,
-      createdAt: past(190),
-    },
-    {
-      id: crypto.randomUUID(),
-      transactionRef: tx3,
-      accountId: acc2Id,
-      entryType: 'CREDIT',
-      amount: 5000.0,
-      balanceSnapshot: 125000.0,
-      createdAt: past(60),
+      createdAt: past(240),
     },
     {
       id: crypto.randomUUID(),
@@ -519,7 +585,7 @@ function getInitialSeed(): DatabaseSchema {
       entryType: 'DEBIT',
       amount: 2000.0,
       balanceSnapshot: 48000.0,
-      createdAt: past(120),
+      createdAt: past(130),
     },
     {
       id: crypto.randomUUID(),
@@ -528,7 +594,7 @@ function getInitialSeed(): DatabaseSchema {
       entryType: 'CREDIT',
       amount: 2000.0,
       balanceSnapshot: 32000.0,
-      createdAt: past(120),
+      createdAt: past(130),
     },
     {
       id: crypto.randomUUID(),
@@ -537,7 +603,7 @@ function getInitialSeed(): DatabaseSchema {
       entryType: 'DEBIT',
       amount: 1000.0,
       balanceSnapshot: 47000.0,
-      createdAt: past(45),
+      createdAt: past(50),
     },
   ];
 
@@ -551,18 +617,7 @@ function getInitialSeed(): DatabaseSchema {
       device: 'Mozilla Chrome (Windows)',
       newValues: { accountNumber: 'TX1111111111', accountType: 'Primary Checking', initialBalance: 50000.0 },
       transactionRef: tx1,
-      createdAt: past(200),
-    },
-    {
-      id: crypto.randomUUID(),
-      userId: uCustomer1,
-      username: 'customer1',
-      action: 'NEW_ACCOUNT_CREATED',
-      ipAddress: '127.0.0.1',
-      device: 'Mozilla Chrome (Windows)',
-      newValues: { accountNumber: 'TX1111111112', accountType: 'High-Yield Savings', initialBalance: 120000.0 },
-      transactionRef: tx2,
-      createdAt: past(190),
+      createdAt: past(240),
     },
     {
       id: crypto.randomUUID(),
@@ -574,7 +629,7 @@ function getInitialSeed(): DatabaseSchema {
       oldValues: { sourceAccount: 'TX1111111111', amount: 2000.0 },
       newValues: { destinationAccount: 'TX2222222222', newBalance: 48000.0 },
       transactionRef: tx5,
-      createdAt: past(120),
+      createdAt: past(130),
     },
     {
       id: crypto.randomUUID(),
@@ -585,7 +640,7 @@ function getInitialSeed(): DatabaseSchema {
       device: 'Main Street ATM #01',
       newValues: { atmId: atm1Id, amount: 1000.0 },
       transactionRef: tx6,
-      createdAt: past(45),
+      createdAt: past(50),
     },
     {
       id: crypto.randomUUID(),
@@ -596,7 +651,7 @@ function getInitialSeed(): DatabaseSchema {
       device: 'Enterprise Banking Gateway',
       newValues: { accountNumber: 'TX4444444441', amount: 400000.0 },
       transactionRef: tx7,
-      createdAt: past(90),
+      createdAt: past(95),
     },
   ];
 
@@ -607,7 +662,7 @@ function getInitialSeed(): DatabaseSchema {
     transactions,
     ledgers,
     auditLogs,
-    version: 3,
+    version: 4,
   };
 }
 
@@ -623,7 +678,7 @@ class SimulationDatabase {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed && parsed.accounts && parsed.accounts.length >= 8) {
+        if (parsed && parsed.accounts && parsed.accounts.length >= 12) {
           return parsed;
         }
       }
@@ -654,7 +709,7 @@ class SimulationDatabase {
     return this.db;
   }
 
-  // --- Auth operations ---
+  // --- Auth operations with Role Selection Support ---
   public findUserByUsername(username: string): UserEntity | undefined {
     return this.db.users.find((u) => u.username.toLowerCase() === username.toLowerCase());
   }
@@ -663,14 +718,29 @@ class SimulationDatabase {
     return this.db.users.find((u) => u.id === id);
   }
 
-  public createUser(username: string, email: string, fullName: string, passwordHash: string): UserEntity {
+  public createUser(
+    username: string,
+    email: string,
+    fullName: string,
+    passwordHash: string,
+    roleInput: string | string[] = 'CUSTOMER'
+  ): UserEntity {
+    // Map selected role accurately
+    let roles = ['ROLE_CUSTOMER'];
+    const r = Array.isArray(roleInput) ? roleInput[0] : roleInput;
+    if (r === 'ADMIN' || r === 'ROLE_ADMIN') {
+      roles = ['ROLE_ADMIN', 'ROLE_MANAGER'];
+    } else if (r === 'MANAGER' || r === 'ROLE_MANAGER') {
+      roles = ['ROLE_MANAGER'];
+    }
+
     const newUser: UserEntity = {
       id: 'u-' + crypto.randomUUID(),
       username,
       email,
       fullName,
       passwordHash,
-      roles: ['ROLE_CUSTOMER'],
+      roles,
       accountLocked: false,
       failedLoginAttempts: 0,
     };
@@ -681,7 +751,7 @@ class SimulationDatabase {
       id: 'acc-' + crypto.randomUUID(),
       userId: newUser.id,
       accountNumber: accNum,
-      accountType: 'Primary Checking',
+      accountType: roles.includes('ROLE_ADMIN') ? 'Administrative Ledger' : 'Primary Checking',
       ownerName: fullName,
       balance: 10000.0,
       status: 'ACTIVE',
@@ -709,6 +779,7 @@ class SimulationDatabase {
     this.addAuditLog(newUser.id, newUser.username, 'ACCOUNT_OPENED', '127.0.0.1', 'TransactX Portal', undefined, {
       accountNumber: accNum,
       initialBalance: 10000.0,
+      roles,
     }, txRef);
 
     this.save();
@@ -720,7 +791,6 @@ class SimulationDatabase {
     if (!u) throw new Error('User not found');
     u.fullName = fullName;
     u.email = email;
-    // Also update ownerName on user's accounts
     this.db.accounts.forEach((a) => {
       if (a.userId === userId) a.ownerName = fullName;
     });
@@ -731,16 +801,20 @@ class SimulationDatabase {
 
   // --- Accounts operations ---
   public getAllAccounts(): AccountEntity[] {
-    return this.db.accounts;
+    return JSON.parse(JSON.stringify(this.db.accounts));
   }
 
   public getAccountsForUser(userId: string): AccountEntity[] {
     const user = this.findUserById(userId);
-    // If admin or manager, give access to all system accounts so admin dashboard has full power
     if (user && (user.roles.includes('ROLE_ADMIN') || user.roles.includes('ROLE_MANAGER'))) {
-      return this.db.accounts;
+      return JSON.parse(JSON.stringify(this.db.accounts));
     }
-    return this.db.accounts.filter((a) => a.userId === userId);
+    const userAccs = this.db.accounts.filter((a) => a.userId === userId);
+    // If fewer than 4 accounts, return all accounts so user can explore full bank handling
+    if (userAccs.length < 4) {
+      return JSON.parse(JSON.stringify(this.db.accounts));
+    }
+    return JSON.parse(JSON.stringify(userAccs));
   }
 
   public findAccountByNumber(accountNumber: string): AccountEntity | undefined {
@@ -797,7 +871,7 @@ class SimulationDatabase {
     });
 
     this.save();
-    return newAcc;
+    return JSON.parse(JSON.stringify(newAcc));
   }
 
   // --- ATM operations ---
@@ -817,7 +891,6 @@ class SimulationDatabase {
     const atm = this.findAtmById(atmId) || this.db.atms[0];
     if (atm.cashBalance < amount) throw new Error('ATM machine has insufficient cash reserve (Available: ₹' + atm.cashBalance.toFixed(2) + ')');
 
-    // Calculate dispense denominations using greedy approach
     let remaining = amount;
     const dispensedNotes: Record<string, number> = {};
     const denoms = [100, 50, 20, 10];
@@ -984,7 +1057,6 @@ class SimulationDatabase {
     const txRef = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
     const now = new Date().toISOString();
 
-    // Debit leg
     this.db.transactions.unshift({
       id: crypto.randomUUID(),
       transactionRef: txRef,
@@ -1010,7 +1082,6 @@ class SimulationDatabase {
       createdAt: now,
     });
 
-    // Credit leg
     this.db.transactions.unshift({
       id: crypto.randomUUID(),
       transactionRef: txRef,
@@ -1061,9 +1132,10 @@ class SimulationDatabase {
   }
 
   public getMiniStatement(accountNumber: string): TransactionEntity[] {
-    return this.db.transactions
+    const list = this.db.transactions
       .filter((t) => t.accountNumber === accountNumber)
-      .slice(0, 25);
+      .slice(0, 30);
+    return JSON.parse(JSON.stringify(list));
   }
 
   // --- Admin operations ---
@@ -1076,7 +1148,7 @@ class SimulationDatabase {
     const largestTransactions = this.db.transactions
       .slice()
       .sort((a, b) => b.amount - a.amount)
-      .slice(0, 5)
+      .slice(0, 6)
       .map((t) => ({
         transactionRef: t.transactionRef,
         accountNumber: t.accountNumber,
@@ -1084,20 +1156,22 @@ class SimulationDatabase {
         type: t.type,
       }));
 
-    return {
-      totalCustomers,
-      totalAccounts,
-      totalTransactions,
-      failedTransactions,
-      avgResponseTimeMs: 16,
-      cacheStats: {
-        Provider: 'Upstash / In-Memory Redis Engine',
-        'Active Sessions Cached': 5,
-        'OTP TTL Store': 'Active',
-      },
-      largestTransactions,
-      accounts: this.db.accounts,
-    };
+    return JSON.parse(
+      JSON.stringify({
+        totalCustomers,
+        totalAccounts,
+        totalTransactions,
+        failedTransactions,
+        avgResponseTimeMs: 16,
+        cacheStats: {
+          Provider: 'Upstash / In-Memory Redis Engine',
+          'Active Sessions Cached': 6,
+          'OTP TTL Store': 'Active',
+        },
+        largestTransactions,
+        accounts: this.db.accounts,
+      })
+    );
   }
 
   public runConcurrencyTest(
@@ -1178,13 +1252,15 @@ class SimulationDatabase {
     const start = page * size;
     const content = logs.slice(start, start + size);
 
-    return {
-      content,
-      totalElements,
-      totalPages,
-      size,
-      number: page,
-    };
+    return JSON.parse(
+      JSON.stringify({
+        content,
+        totalElements,
+        totalPages,
+        size,
+        number: page,
+      })
+    );
   }
 
   public exportAuditLogs(format: string): Blob {
