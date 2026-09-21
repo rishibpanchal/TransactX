@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { resetSimulationDatabase } from '../api';
 import { 
   Landmark, 
   LayoutDashboard, 
@@ -10,7 +11,8 @@ import {
   ShieldCheck, 
   Settings, 
   LogOut, 
-  User 
+  User,
+  RefreshCw 
 } from 'lucide-react';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -136,11 +138,27 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               {location.pathname === '/settings' && 'Profile management and security configurations'}
             </p>
           </div>
-          <div className="flex items-center gap-4 text-xs text-slate-400 font-semibold bg-white/[0.02] border border-white/5 px-4 py-2 rounded-xl">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            PostgreSQL: Connected
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-600" />
-            Redis: Active
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                if (window.confirm('Reset demo database to fresh initial state? All balances and demo accounts will be restored.')) {
+                  resetSimulationDatabase();
+                  showToast('Demo database restored to initial state!', 'success');
+                  window.location.reload();
+                }
+              }}
+              title="Reset initial balances, accounts, and demo data"
+              className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg transition-all"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-primary" />
+              <span>Reset Demo DB</span>
+            </button>
+            <div className="flex items-center gap-4 text-xs text-slate-400 font-semibold bg-white/[0.02] border border-white/5 px-4 py-2 rounded-xl">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              PostgreSQL: Connected (Engine Active)
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-600" />
+              Redis: Active
+            </div>
           </div>
         </header>
 

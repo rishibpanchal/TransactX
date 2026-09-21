@@ -99,24 +99,54 @@ export const Login: React.FC = () => {
 
         {/* Demo profiles quick installer */}
         <div className="mt-8 pt-6 border-t border-white/5">
-          <div className="flex items-center gap-2 mb-3">
-            <ShieldCheck className="w-4 h-4 text-primary" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Autofill Demo Profiles</span>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-300">Demo Profiles (Ready)</span>
+            </div>
+            <span className="text-[10px] text-emerald-400 font-mono font-medium bg-emerald-950/40 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+              Engine Active
+            </span>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <button
-              onClick={() => autofillDemo('customer')}
-              className="p-2 border border-white/5 bg-white/5 hover:bg-white/10 rounded-lg text-xs text-slate-200 text-center font-medium transition-all"
+              type="button"
+              onClick={async () => {
+                autofillDemo('customer');
+                try {
+                  await login({ username: 'customer1', password: 'password' });
+                  showToast('Signed in as Jane Doe (Demo Customer)', 'success');
+                  navigate('/');
+                } catch (e: any) {
+                  showToast(e.message || 'Login failed', 'error');
+                }
+              }}
+              className="p-2.5 border border-primary/20 bg-primary/10 hover:bg-primary/20 rounded-lg text-xs text-primary-light text-center font-medium transition-all group"
             >
-              Demo Customer
+              <span className="block font-bold text-white group-hover:text-primary">Demo Customer</span>
+              <span className="text-[10px] text-slate-400">customer1 / password</span>
             </button>
             <button
-              onClick={() => autofillDemo('admin')}
-              className="p-2 border border-white/5 bg-white/5 hover:bg-white/10 rounded-lg text-xs text-slate-200 text-center font-medium transition-all"
+              type="button"
+              onClick={async () => {
+                autofillDemo('admin');
+                try {
+                  await login({ username: 'admin1', password: 'password' });
+                  showToast('Signed in as Supervisor Admin (Demo Admin)', 'success');
+                  navigate('/admin');
+                } catch (e: any) {
+                  showToast(e.message || 'Login failed', 'error');
+                }
+              }}
+              className="p-2.5 border border-purple-500/20 bg-purple-950/20 hover:bg-purple-950/40 rounded-lg text-xs text-purple-300 text-center font-medium transition-all group"
             >
-              Demo Admin
+              <span className="block font-bold text-white group-hover:text-purple-300">Demo Admin</span>
+              <span className="text-[10px] text-slate-400">admin1 / password</span>
             </button>
           </div>
+          <p className="text-[10px] text-slate-400 text-center mt-2.5">
+            Click either profile to directly sign in with complete dummy accounts and transactions.
+          </p>
         </div>
 
         <div className="mt-6 text-center">
