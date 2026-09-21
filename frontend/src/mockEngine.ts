@@ -802,7 +802,7 @@ class SimulationDatabase {
 
   // --- ATM operations ---
   public getAtms(): AtmEntity[] {
-    return this.db.atms;
+    return JSON.parse(JSON.stringify(this.db.atms));
   }
 
   public findAtmById(id: string): AtmEntity | undefined {

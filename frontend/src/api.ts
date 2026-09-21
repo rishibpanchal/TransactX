@@ -66,7 +66,7 @@ async function handleSimulatedRequest(config: InternalAxiosRequestConfig | Axios
   const currentUser = getCurrentUser(config);
 
   const makeResponse = (data: any, status: number = 200): AxiosResponse => ({
-    data,
+    data: data !== undefined ? (data instanceof Blob ? data : JSON.parse(JSON.stringify(data))) : data,
     status,
     statusText: 'OK',
     headers: {},

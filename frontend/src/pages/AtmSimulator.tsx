@@ -125,7 +125,7 @@ export const AtmSimulator: React.FC = () => {
     },
   });
 
-  const activeAtm = atms.find((a: any) => a.id === selectedAtmId);
+  const activeAtm = atms.find((a: any) => a.id === selectedAtmId) || atms[0];
 
   // Mutation: Withdrawal
   const withdrawMutation = useMutation({
@@ -138,6 +138,8 @@ export const AtmSimulator: React.FC = () => {
       setDispenseReceipt(data);
       queryClient.invalidateQueries({ queryKey: ['myAccounts'] });
       queryClient.invalidateQueries({ queryKey: ['atms'] });
+      queryClient.refetchQueries({ queryKey: ['atms'] });
+      queryClient.refetchQueries({ queryKey: ['myAccounts'] });
       setWithdrawAmount('');
     },
     onError: (err: any) => {
@@ -157,6 +159,8 @@ export const AtmSimulator: React.FC = () => {
       showToast(`Deposited ₹${data.amount} successfully!`, 'success');
       queryClient.invalidateQueries({ queryKey: ['myAccounts'] });
       queryClient.invalidateQueries({ queryKey: ['atms'] });
+      queryClient.refetchQueries({ queryKey: ['atms'] });
+      queryClient.refetchQueries({ queryKey: ['myAccounts'] });
       // Reset form
       setDepositAmount('');
       setDep100('0');
@@ -271,17 +275,30 @@ export const AtmSimulator: React.FC = () => {
             <div className="space-y-4">
               <div className="flex justify-between items-center text-sm border-b border-white/5 pb-2">
                 <span className="text-slate-400">Terminal Cash Reserve:</span>
-                <span className="font-bold text-white">₹{activeAtm.cashBalance.toLocaleString()}</span>
+                <span className="font-bold text-white text-base font-mono">
+                  ₹{Number(activeAtm.cashBalance).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                </span>
               </div>
               <div>
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">Available Bill Cassettes</span>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Available Bill Cassettes</span>
+                  <span className="text-[10px] text-emerald-400 font-mono">Live Inventory</span>
+                </div>
                 <div className="grid grid-cols-2 gap-3 text-xs">
-                  {Object.entries(activeAtm.denominations).map(([note, count]: [string, any]) => (
-                    <div key={note} className="bg-white/5 border border-white/5 p-2 rounded-lg flex justify-between items-center">
-                      <span className="font-bold text-slate-300">₹{note} bills</span>
-                      <span className="bg-primary/20 text-primary font-bold px-2 py-0.5 rounded">{count} left</span>
-                    </div>
-                  ))}
+                  {Object.entries(activeAtm.denominations)
+                    .sort(([a], [b]) => Number(b) - Number(a))
+                    .map(([note, count]: [string, any]) => (
+                      <div key={note} className="bg-white/5 border border-white/5 p-2.5 rounded-lg flex justify-between items-center transition-all hover:bg-white/[0.08]">
+                        <span className="font-bold text-slate-300 font-mono">₹{note}</span>
+                        <span className={`font-mono font-bold px-2 py-0.5 rounded text-xs transition-colors ${
+                          Number(count) < 20 
+                            ? 'bg-rose-950/80 text-rose-300 border border-rose-500/30' 
+                            : 'bg-primary/20 text-primary-light border border-primary/30'
+                        }`}>
+                          {count} notes
+                        </span>
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>
@@ -301,8 +318,20 @@ export const AtmSimulator: React.FC = () => {
               <div>Status: <b className="text-emerald-400">{dispenseReceipt.status}</b></div>
               <div className="border-t border-white/5 pt-2 flex justify-between text-white font-bold text-sm">
                 <span>Dispensed Amount:</span>
-                <span>₹{dispenseReceipt.amount.toFixed(2)}</span>
+                <span className="font-mono text-emerald-400">₹{Number(dispenseReceipt.amount).toFixed(2)}</span>
               </div>
+              {dispenseReceipt.dispensedDenominations && Object.keys(dispenseReceipt.dispensedDenominations).length > 0 && (
+                <div className="border-t border-white/5 pt-2">
+                  <span className="text-[10px] uppercase tracking-wider text-slate-400 block mb-1">Dispensed Physical Notes:</span>
+                  <div className="flex flex-wrap gap-1.5 mt-1">
+                    {Object.entries(dispenseReceipt.dispensedDenominations).map(([note, count]: [string, any]) => (
+                      <span key={note} className="px-2 py-0.5 bg-emerald-900/60 border border-emerald-500/40 text-emerald-200 rounded font-mono text-[11px] font-bold">
+                        {count} × ₹{note} notes
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
