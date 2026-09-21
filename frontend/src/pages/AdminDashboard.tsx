@@ -64,15 +64,13 @@ export const AdminDashboard: React.FC = () => {
   };
 
   const handleAutofillAccounts = () => {
-    // Look up two customer accounts from the dashboard stats if available, or fill standard placeholders
-    if (stats?.largestTransactions?.length > 0) {
-      // Find distinct accounts to transfer between
-      const distinct = Array.from(new Set(stats.largestTransactions.map((tx: any) => tx.accountNumber)));
-      if (distinct.length >= 2) {
-        setSourceAcc(distinct[0] as string);
-        setDestAcc(distinct[1] as string);
-        return;
-      }
+    if (stats?.accounts && stats.accounts.length >= 2) {
+      const src = stats.accounts.find((a: any) => a.accountNumber === 'TX1111111111') || stats.accounts[0];
+      const dst = stats.accounts.find((a: any) => a.accountNumber === 'TX4444444441' || a.accountNumber === 'TX2222222222') || stats.accounts[1];
+      setSourceAcc(src.accountNumber);
+      setDestAcc(dst.accountNumber);
+      showToast(`Autofilled: ${src.accountNumber} -> ${dst.accountNumber}`, 'info');
+      return;
     }
     // Fallbacks
     setSourceAcc('TX1111111111');
@@ -97,27 +95,27 @@ export const AdminDashboard: React.FC = () => {
               <Users className="w-5 h-5 text-primary" />
             </div>
             <h3 className="text-3xl font-bold tracking-tight text-white mt-2">{stats.totalCustomers}</h3>
-            <span className="text-[10px] text-muted font-medium mt-1">Customers provisioned in DB</span>
+            <span className="text-[10px] text-muted font-medium mt-1">Verified retail & business users</span>
           </div>
 
           {/* Card 2 */}
+          <div className="glass-panel p-5 flex flex-col justify-between border-t-2 border-cyan-500 relative overflow-hidden">
+            <div className="flex justify-between items-start">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Accounts</span>
+              <CreditCard className="w-5 h-5 text-cyan-400" />
+            </div>
+            <h3 className="text-3xl font-bold tracking-tight text-white mt-2">{stats.totalAccounts || stats.accounts?.length || 10}</h3>
+            <span className="text-[10px] text-muted font-medium mt-1">Checking, savings & vaults loaded</span>
+          </div>
+
+          {/* Card 3 */}
           <div className="glass-panel p-5 flex flex-col justify-between border-t-2 border-accent relative overflow-hidden">
             <div className="flex justify-between items-start">
               <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Transactions</span>
               <Activity className="w-5 h-5 text-accent" />
             </div>
             <h3 className="text-3xl font-bold tracking-tight text-white mt-2">{stats.totalTransactions}</h3>
-            <span className="text-[10px] text-muted font-medium mt-1">Deposit/withdraw/transfer logs</span>
-          </div>
-
-          {/* Card 3 */}
-          <div className="glass-panel p-5 flex flex-col justify-between border-t-2 border-danger relative overflow-hidden">
-            <div className="flex justify-between items-start">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Failed Operations</span>
-              <AlertTriangle className="w-5 h-5 text-danger" />
-            </div>
-            <h3 className="text-3xl font-bold tracking-tight text-white mt-2">{stats.failedTransactions}</h3>
-            <span className="text-[10px] text-muted font-medium mt-1">Rollbacks or locking failures</span>
+            <span className="text-[10px] text-muted font-medium mt-1">Deposits, wires & ATM logs</span>
           </div>
 
           {/* Card 4 */}
@@ -286,6 +284,72 @@ export const AdminDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Core Ledger Accounts Directory */}
+      {stats?.accounts && stats.accounts.length > 0 && (
+        <div className="glass-panel p-6">
+          <div className="flex justify-between items-center mb-4 pb-2 border-b border-white/5">
+            <div>
+              <h4 className="font-bold flex items-center gap-2 text-sm text-white">
+                <CreditCard className="w-4 h-4 text-primary" /> Core Ledger Accounts & Liquidity Balances ({stats.accounts.length})
+              </h4>
+              <p className="text-xs text-muted mt-0.5">All customer, corporate and treasury accounts loaded in the simulator</p>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left text-slate-300">
+              <thead className="text-[10px] text-slate-400 uppercase tracking-wider bg-white/[0.02] border-b border-white/5">
+                <tr>
+                  <th className="p-3">Account Number</th>
+                  <th className="p-3">Account Holder</th>
+                  <th className="p-3">Classification</th>
+                  <th className="p-3 text-right">Available Balance</th>
+                  <th className="p-3 text-center">Status</th>
+                  <th className="p-3 text-center">Sandbox Quick-Fill</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {stats.accounts.map((acc: any) => (
+                  <tr key={acc.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="p-3 font-mono font-bold text-white">{acc.accountNumber}</td>
+                    <td className="p-3 text-slate-200 font-medium">{acc.ownerName}</td>
+                    <td className="p-3 text-slate-400">{acc.accountType}</td>
+                    <td className="p-3 text-right font-mono font-bold text-emerald-400">
+                      ₹{Number(acc.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="p-3 text-center">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/60 border border-emerald-500/30 text-emerald-300">
+                        {acc.status}
+                      </span>
+                    </td>
+                    <td className="p-3 text-center space-x-2">
+                      <button
+                        onClick={() => {
+                          setSourceAcc(acc.accountNumber);
+                          showToast(`Set ${acc.accountNumber} (${acc.ownerName}) as Source`, 'info');
+                        }}
+                        className="px-2.5 py-1 bg-indigo-950/60 hover:bg-indigo-900 border border-indigo-500/30 text-indigo-300 rounded text-[10px] font-medium transition-all"
+                      >
+                        Set Source
+                      </button>
+                      <button
+                        onClick={() => {
+                          setDestAcc(acc.accountNumber);
+                          showToast(`Set ${acc.accountNumber} (${acc.ownerName}) as Destination`, 'info');
+                        }}
+                        className="px-2.5 py-1 bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-500/30 text-emerald-300 rounded text-[10px] font-medium transition-all"
+                      >
+                        Set Dest
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Database Statistics */}
       {stats && (

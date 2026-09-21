@@ -139,7 +139,7 @@ export const Dashboard: React.FC = () => {
             >
               {accounts.map((a: any) => (
                 <option key={a.id} value={a.accountNumber} className="bg-slate-900 text-slate-100">
-                  {a.accountNumber} ({a.status})
+                  {a.accountNumber} • {a.ownerName ? `${a.ownerName} - ` : ''}{a.accountType || 'Standard'} (₹{Number(a.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })})
                 </option>
               ))}
             </select>
@@ -170,7 +170,14 @@ export const Dashboard: React.FC = () => {
             <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-xl pointer-events-none" />
             <div>
               <div className="flex justify-between items-start">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Available Balance</span>
+                <div>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Available Balance</span>
+                  {activeAccount.accountType && (
+                    <span className="block text-xs font-medium text-primary-light mt-0.5">
+                      {activeAccount.ownerName ? `${activeAccount.ownerName} • ` : ''}{activeAccount.accountType}
+                    </span>
+                  )}
+                </div>
                 <Wallet className="w-5 h-5 text-primary" />
               </div>
               <h3 className="text-3xl font-bold tracking-tight mt-2 text-white">

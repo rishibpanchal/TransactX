@@ -16,6 +16,8 @@ export interface AccountEntity {
   id: string;
   userId: string;
   accountNumber: string;
+  accountType: string; // 'Checking' | 'Savings' | 'Payroll' | 'Escrow' | 'Treasury Vault'
+  ownerName: string;
   balance: number;
   status: 'ACTIVE' | 'FROZEN' | 'CLOSED';
   version: number;
@@ -38,7 +40,7 @@ export interface TransactionEntity {
   accountNumber: string;
   userId: string;
   atmId?: string;
-  type: 'DEPOSIT' | 'WITHDRAWAL' | 'TRANSFER_OUT' | 'TRANSFER_IN' | 'FEE' | 'REVERSAL';
+  type: 'DEPOSIT' | 'WITHDRAWAL' | 'TRANSFER_OUT' | 'TRANSFER_IN' | 'FEE' | 'REVERSAL' | 'SALARY_CREDIT' | 'INTEREST_CREDIT';
   status: 'SUCCESS' | 'FAILED' | 'PENDING';
   beforeBalance: number;
   afterBalance: number;
@@ -80,27 +82,40 @@ interface DatabaseSchema {
   version: number;
 }
 
-const STORAGE_KEY = 'transactx_database_v2';
+const STORAGE_KEY = 'transactx_database_v3';
 
-// Standard Initial Seed Data matching Spring Boot DataSeeder.java
+// Rich Initial Seed Data
 function getInitialSeed(): DatabaseSchema {
-  const customer1Id = 'u-customer1-jane-doe';
-  const customer2Id = 'u-customer2-john-smith';
-  const admin1Id = 'u-admin1-supervisor';
+  const uCustomer1 = 'u-customer1-jane-doe';
+  const uCustomer2 = 'u-customer2-john-smith';
+  const uCustomer3 = 'u-customer3-alex-rivera';
+  const uCustomer4 = 'u-customer4-priya-sharma';
+  const uCustomer5 = 'u-customer5-marcus-vance';
+  const uAdmin1 = 'u-admin1-supervisor';
 
   const acc1Id = 'acc-1111111111';
-  const acc2Id = 'acc-2222222222';
+  const acc2Id = 'acc-1111111112';
+  const acc3Id = 'acc-1111111113';
+  const acc4Id = 'acc-2222222222';
+  const acc5Id = 'acc-2222222223';
+  const acc6Id = 'acc-3333333331';
+  const acc7Id = 'acc-4444444441';
+  const acc8Id = 'acc-5555555551';
+  const acc9Id = 'acc-9999999991';
+  const acc10Id = 'acc-9999999992';
 
-  const atmId = 'b3c2a6f2-1d5b-4395-926b-193c04f98144';
+  const atm1Id = 'b3c2a6f2-1d5b-4395-926b-193c04f98144';
+  const atm2Id = 'c4d3b7a1-2e6c-5406-037c-204d15e09255';
+  const atm3Id = 'd5e4c8b2-3f7d-6517-148d-315e26f10366';
 
   const now = new Date();
   const past = (mins: number) => new Date(now.getTime() - mins * 60000).toISOString();
 
   const users: UserEntity[] = [
     {
-      id: customer1Id,
+      id: uCustomer1,
       username: 'customer1',
-      passwordHash: 'password', // Plain comparison for simulation
+      passwordHash: 'password',
       email: 'customer1@transactx.com',
       fullName: 'Jane Doe',
       roles: ['ROLE_CUSTOMER'],
@@ -108,7 +123,7 @@ function getInitialSeed(): DatabaseSchema {
       failedLoginAttempts: 0,
     },
     {
-      id: customer2Id,
+      id: uCustomer2,
       username: 'customer2',
       passwordHash: 'password',
       email: 'customer2@transactx.com',
@@ -118,7 +133,37 @@ function getInitialSeed(): DatabaseSchema {
       failedLoginAttempts: 0,
     },
     {
-      id: admin1Id,
+      id: uCustomer3,
+      username: 'customer3',
+      passwordHash: 'password',
+      email: 'alex.rivera@transactx.com',
+      fullName: 'Alex Rivera',
+      roles: ['ROLE_CUSTOMER'],
+      accountLocked: false,
+      failedLoginAttempts: 0,
+    },
+    {
+      id: uCustomer4,
+      username: 'customer4',
+      passwordHash: 'password',
+      email: 'priya.sharma@transactx.com',
+      fullName: 'Priya Sharma',
+      roles: ['ROLE_CUSTOMER'],
+      accountLocked: false,
+      failedLoginAttempts: 0,
+    },
+    {
+      id: uCustomer5,
+      username: 'customer5',
+      passwordHash: 'password',
+      email: 'marcus.vance@transactx.com',
+      fullName: 'Marcus Vance',
+      roles: ['ROLE_CUSTOMER'],
+      accountLocked: false,
+      failedLoginAttempts: 0,
+    },
+    {
+      id: uAdmin1,
       username: 'admin1',
       passwordHash: 'password',
       email: 'admin1@transactx.com',
@@ -132,207 +177,426 @@ function getInitialSeed(): DatabaseSchema {
   const accounts: AccountEntity[] = [
     {
       id: acc1Id,
-      userId: customer1Id,
+      userId: uCustomer1,
       accountNumber: 'TX1111111111',
+      accountType: 'Primary Checking',
+      ownerName: 'Jane Doe',
       balance: 47000.0,
       status: 'ACTIVE',
-      version: 3,
-      createdAt: past(180),
+      version: 4,
+      createdAt: past(240),
     },
     {
       id: acc2Id,
-      userId: customer2Id,
-      accountNumber: 'TX2222222222',
-      balance: 32000.0,
+      userId: uCustomer1,
+      accountNumber: 'TX1111111112',
+      accountType: 'High-Yield Savings',
+      ownerName: 'Jane Doe',
+      balance: 125000.0,
       status: 'ACTIVE',
       version: 2,
+      createdAt: past(200),
+    },
+    {
+      id: acc3Id,
+      userId: uCustomer1,
+      accountNumber: 'TX1111111113',
+      accountType: 'Wealth Portfolio',
+      ownerName: 'Jane Doe',
+      balance: 350000.0,
+      status: 'ACTIVE',
+      version: 1,
+      createdAt: past(180),
+    },
+    {
+      id: acc4Id,
+      userId: uCustomer2,
+      accountNumber: 'TX2222222222',
+      accountType: 'Retail Checking',
+      ownerName: 'John Smith',
+      balance: 32000.0,
+      status: 'ACTIVE',
+      version: 3,
+      createdAt: past(220),
+    },
+    {
+      id: acc5Id,
+      userId: uCustomer2,
+      accountNumber: 'TX2222222223',
+      accountType: 'Emergency Reserve',
+      ownerName: 'John Smith',
+      balance: 85000.0,
+      status: 'ACTIVE',
+      version: 1,
+      createdAt: past(190),
+    },
+    {
+      id: acc6Id,
+      userId: uCustomer3,
+      accountNumber: 'TX3333333331',
+      accountType: 'Global Traveler Checking',
+      ownerName: 'Alex Rivera',
+      balance: 64500.0,
+      status: 'ACTIVE',
+      version: 2,
+      createdAt: past(160),
+    },
+    {
+      id: acc7Id,
+      userId: uCustomer4,
+      accountNumber: 'TX4444444441',
+      accountType: 'Tech Corp Corporate Payroll',
+      ownerName: 'Priya Sharma',
+      balance: 420000.0,
+      status: 'ACTIVE',
+      version: 5,
       createdAt: past(150),
+    },
+    {
+      id: acc8Id,
+      userId: uCustomer5,
+      accountNumber: 'TX5555555551',
+      accountType: 'Commercial Escrow Account',
+      ownerName: 'Marcus Vance',
+      balance: 215000.0,
+      status: 'ACTIVE',
+      version: 2,
+      createdAt: past(140),
+    },
+    {
+      id: acc9Id,
+      userId: uAdmin1,
+      accountNumber: 'TX9999999991',
+      accountType: 'Central Core Liquidity Vault',
+      ownerName: 'TransactX Treasury',
+      balance: 1500000.0,
+      status: 'ACTIVE',
+      version: 1,
+      createdAt: past(300),
+    },
+    {
+      id: acc10Id,
+      userId: uAdmin1,
+      accountNumber: 'TX9999999992',
+      accountType: 'ATM Terminal Float Reserve',
+      ownerName: 'TransactX Treasury',
+      balance: 750000.0,
+      status: 'ACTIVE',
+      version: 1,
+      createdAt: past(300),
     },
   ];
 
   const atms: AtmEntity[] = [
     {
-      id: atmId,
+      id: atm1Id,
       name: 'Main Street Core Branch ATM',
       location: 'New Delhi, IN',
-      cashBalance: 24000.0,
-      denominations: { '100': 100, '50': 100, '20': 200, '10': 500 },
+      cashBalance: 50000.0,
+      denominations: { '100': 200, '50': 200, '20': 500, '10': 1000 },
+      status: 'ACTIVE',
+    },
+    {
+      id: atm2Id,
+      name: 'Metro International Airport Terminal 3 ATM',
+      location: 'Mumbai, IN',
+      cashBalance: 120000.0,
+      denominations: { '100': 600, '50': 600, '20': 1000, '10': 1000 },
+      status: 'ACTIVE',
+    },
+    {
+      id: atm3Id,
+      name: 'Cyber City Tech Park ATM',
+      location: 'Bengaluru, IN',
+      cashBalance: 80000.0,
+      denominations: { '100': 400, '50': 400, '20': 500, '10': 1000 },
       status: 'ACTIVE',
     },
   ];
 
-  const txRef1 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
-  const txRef2 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
-  const txRef3 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
-  const txRef4 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
+  const tx1 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
+  const tx2 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
+  const tx3 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
+  const tx4 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
+  const tx5 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
+  const tx6 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
+  const tx7 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
+  const tx8 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
+  const tx9 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
+  const tx10 = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
 
   const transactions: TransactionEntity[] = [
     {
       id: crypto.randomUUID(),
-      transactionRef: txRef1,
+      transactionRef: tx1,
       accountId: acc1Id,
       accountNumber: 'TX1111111111',
-      userId: customer1Id,
+      userId: uCustomer1,
       type: 'DEPOSIT',
       status: 'SUCCESS',
       beforeBalance: 0.0,
       afterBalance: 50000.0,
       amount: 50000.0,
-      description: 'Initial Account Deposit',
-      createdAt: past(120),
+      description: 'Initial Salary Deposit',
+      createdAt: past(200),
     },
     {
       id: crypto.randomUUID(),
-      transactionRef: txRef2,
+      transactionRef: tx2,
       accountId: acc2Id,
-      accountNumber: 'TX2222222222',
-      userId: customer2Id,
+      accountNumber: 'TX1111111112',
+      userId: uCustomer1,
       type: 'DEPOSIT',
       status: 'SUCCESS',
       beforeBalance: 0.0,
-      afterBalance: 30000.0,
-      amount: 30000.0,
-      description: 'Initial Account Deposit',
-      createdAt: past(100),
+      afterBalance: 120000.0,
+      amount: 120000.0,
+      description: 'Fixed Deposit Maturity Credit',
+      createdAt: past(190),
     },
     {
       id: crypto.randomUUID(),
-      transactionRef: txRef3,
+      transactionRef: tx3,
+      accountId: acc2Id,
+      accountNumber: 'TX1111111112',
+      userId: uCustomer1,
+      type: 'INTEREST_CREDIT',
+      status: 'SUCCESS',
+      beforeBalance: 120000.0,
+      afterBalance: 125000.0,
+      amount: 5000.0,
+      description: 'Quarterly High-Yield Interest Payment',
+      createdAt: past(60),
+    },
+    {
+      id: crypto.randomUUID(),
+      transactionRef: tx4,
+      accountId: acc3Id,
+      accountNumber: 'TX1111111113',
+      userId: uCustomer1,
+      type: 'DEPOSIT',
+      status: 'SUCCESS',
+      beforeBalance: 0.0,
+      afterBalance: 350000.0,
+      amount: 350000.0,
+      description: 'Mutual Fund Dividend Reinvestment',
+      createdAt: past(170),
+    },
+    {
+      id: crypto.randomUUID(),
+      transactionRef: tx5,
       accountId: acc1Id,
       accountNumber: 'TX1111111111',
-      userId: customer1Id,
+      userId: uCustomer1,
       type: 'TRANSFER_OUT',
       status: 'SUCCESS',
       beforeBalance: 50000.0,
       afterBalance: 48000.0,
       amount: 2000.0,
-      description: 'Transfer to TX2222222222',
-      createdAt: past(60),
+      description: 'Fund Transfer to John Smith (TX2222222222)',
+      createdAt: past(120),
     },
     {
       id: crypto.randomUUID(),
-      transactionRef: txRef3,
-      accountId: acc2Id,
+      transactionRef: tx5,
+      accountId: acc4Id,
       accountNumber: 'TX2222222222',
-      userId: customer2Id,
+      userId: uCustomer2,
       type: 'TRANSFER_IN',
       status: 'SUCCESS',
       beforeBalance: 30000.0,
       afterBalance: 32000.0,
       amount: 2000.0,
-      description: 'Transfer from TX1111111111',
-      createdAt: past(60),
+      description: 'Fund Transfer from Jane Doe (TX1111111111)',
+      createdAt: past(120),
     },
     {
       id: crypto.randomUUID(),
-      transactionRef: txRef4,
+      transactionRef: tx6,
       accountId: acc1Id,
       accountNumber: 'TX1111111111',
-      userId: customer1Id,
-      atmId,
+      userId: uCustomer1,
+      atmId: atm1Id,
       type: 'WITHDRAWAL',
       status: 'SUCCESS',
       beforeBalance: 48000.0,
       afterBalance: 47000.0,
       amount: 1000.0,
-      description: 'ATM Cash Withdrawal',
-      createdAt: past(30),
+      description: 'Cash Withdrawal at Main Street Core Branch ATM',
+      createdAt: past(45),
+    },
+    {
+      id: crypto.randomUUID(),
+      transactionRef: tx7,
+      accountId: acc7Id,
+      accountNumber: 'TX4444444441',
+      userId: uCustomer4,
+      type: 'SALARY_CREDIT',
+      status: 'SUCCESS',
+      beforeBalance: 20000.0,
+      afterBalance: 420000.0,
+      amount: 400000.0,
+      description: 'Monthly Corporate Payroll Inward Wire',
+      createdAt: past(90),
+    },
+    {
+      id: crypto.randomUUID(),
+      transactionRef: tx8,
+      accountId: acc8Id,
+      accountNumber: 'TX5555555551',
+      userId: uCustomer5,
+      type: 'DEPOSIT',
+      status: 'SUCCESS',
+      beforeBalance: 15000.0,
+      afterBalance: 215000.0,
+      amount: 200000.0,
+      description: 'Real Estate Deal Escrow Retention',
+      createdAt: past(80),
+    },
+    {
+      id: crypto.randomUUID(),
+      transactionRef: tx9,
+      accountId: acc6Id,
+      accountNumber: 'TX3333333331',
+      userId: uCustomer3,
+      atmId: atm2Id,
+      type: 'WITHDRAWAL',
+      status: 'SUCCESS',
+      beforeBalance: 70000.0,
+      afterBalance: 64500.0,
+      amount: 5500.0,
+      description: 'Airport ATM Currency Dispense',
+      createdAt: past(35),
+    },
+    {
+      id: crypto.randomUUID(),
+      transactionRef: tx10,
+      accountId: acc9Id,
+      accountNumber: 'TX9999999991',
+      userId: uAdmin1,
+      type: 'DEPOSIT',
+      status: 'SUCCESS',
+      beforeBalance: 0.0,
+      afterBalance: 1500000.0,
+      amount: 1500000.0,
+      description: 'Central Core Banking Liquidity Allocation',
+      createdAt: past(290),
     },
   ];
 
   const ledgers: LedgerEntryEntity[] = [
     {
       id: crypto.randomUUID(),
-      transactionRef: txRef1,
+      transactionRef: tx1,
       accountId: acc1Id,
       entryType: 'CREDIT',
       amount: 50000.0,
       balanceSnapshot: 50000.0,
-      createdAt: past(120),
+      createdAt: past(200),
     },
     {
       id: crypto.randomUUID(),
-      transactionRef: txRef2,
+      transactionRef: tx2,
       accountId: acc2Id,
       entryType: 'CREDIT',
-      amount: 30000.0,
-      balanceSnapshot: 30000.0,
-      createdAt: past(100),
+      amount: 120000.0,
+      balanceSnapshot: 120000.0,
+      createdAt: past(190),
     },
     {
       id: crypto.randomUUID(),
-      transactionRef: txRef3,
+      transactionRef: tx3,
+      accountId: acc2Id,
+      entryType: 'CREDIT',
+      amount: 5000.0,
+      balanceSnapshot: 125000.0,
+      createdAt: past(60),
+    },
+    {
+      id: crypto.randomUUID(),
+      transactionRef: tx5,
       accountId: acc1Id,
       entryType: 'DEBIT',
       amount: 2000.0,
       balanceSnapshot: 48000.0,
-      createdAt: past(60),
+      createdAt: past(120),
     },
     {
       id: crypto.randomUUID(),
-      transactionRef: txRef3,
-      accountId: acc2Id,
+      transactionRef: tx5,
+      accountId: acc4Id,
       entryType: 'CREDIT',
       amount: 2000.0,
       balanceSnapshot: 32000.0,
-      createdAt: past(60),
+      createdAt: past(120),
     },
     {
       id: crypto.randomUUID(),
-      transactionRef: txRef4,
+      transactionRef: tx6,
       accountId: acc1Id,
       entryType: 'DEBIT',
       amount: 1000.0,
       balanceSnapshot: 47000.0,
-      createdAt: past(30),
+      createdAt: past(45),
     },
   ];
 
   const auditLogs: AuditLogEntity[] = [
     {
       id: crypto.randomUUID(),
-      userId: customer1Id,
+      userId: uCustomer1,
       username: 'customer1',
       action: 'ACCOUNT_OPENED',
       ipAddress: '127.0.0.1',
       device: 'Mozilla Chrome (Windows)',
-      newValues: { accountNumber: 'TX1111111111', initialBalance: 50000.0 },
-      transactionRef: txRef1,
-      createdAt: past(120),
+      newValues: { accountNumber: 'TX1111111111', accountType: 'Primary Checking', initialBalance: 50000.0 },
+      transactionRef: tx1,
+      createdAt: past(200),
     },
     {
       id: crypto.randomUUID(),
-      userId: customer2Id,
-      username: 'customer2',
-      action: 'ACCOUNT_OPENED',
+      userId: uCustomer1,
+      username: 'customer1',
+      action: 'NEW_ACCOUNT_CREATED',
       ipAddress: '127.0.0.1',
       device: 'Mozilla Chrome (Windows)',
-      newValues: { accountNumber: 'TX2222222222', initialBalance: 30000.0 },
-      transactionRef: txRef2,
-      createdAt: past(100),
+      newValues: { accountNumber: 'TX1111111112', accountType: 'High-Yield Savings', initialBalance: 120000.0 },
+      transactionRef: tx2,
+      createdAt: past(190),
     },
     {
       id: crypto.randomUUID(),
-      userId: customer1Id,
+      userId: uCustomer1,
       username: 'customer1',
       action: 'FUND_TRANSFER',
       ipAddress: '127.0.0.1',
       device: 'Mozilla Safari (iOS)',
       oldValues: { sourceAccount: 'TX1111111111', amount: 2000.0 },
-      newValues: { destinationAccount: 'TX2222222222' },
-      transactionRef: txRef3,
-      createdAt: past(60),
+      newValues: { destinationAccount: 'TX2222222222', newBalance: 48000.0 },
+      transactionRef: tx5,
+      createdAt: past(120),
     },
     {
       id: crypto.randomUUID(),
-      userId: customer1Id,
+      userId: uCustomer1,
       username: 'customer1',
       action: 'ATM_WITHDRAWAL',
       ipAddress: '127.0.0.1',
-      device: 'ATM Terminal #01',
-      newValues: { atmId, amount: 1000.0 },
-      transactionRef: txRef4,
-      createdAt: past(30),
+      device: 'Main Street ATM #01',
+      newValues: { atmId: atm1Id, amount: 1000.0 },
+      transactionRef: tx6,
+      createdAt: past(45),
+    },
+    {
+      id: crypto.randomUUID(),
+      userId: uCustomer4,
+      username: 'customer4',
+      action: 'CORPORATE_PAYROLL_POSTING',
+      ipAddress: '192.168.1.104',
+      device: 'Enterprise Banking Gateway',
+      newValues: { accountNumber: 'TX4444444441', amount: 400000.0 },
+      transactionRef: tx7,
+      createdAt: past(90),
     },
   ];
 
@@ -343,7 +607,7 @@ function getInitialSeed(): DatabaseSchema {
     transactions,
     ledgers,
     auditLogs,
-    version: 2,
+    version: 3,
   };
 }
 
@@ -359,7 +623,7 @@ class SimulationDatabase {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed && parsed.users && parsed.accounts && parsed.accounts.length > 0) {
+        if (parsed && parsed.accounts && parsed.accounts.length >= 8) {
           return parsed;
         }
       }
@@ -392,11 +656,11 @@ class SimulationDatabase {
 
   // --- Auth operations ---
   public findUserByUsername(username: string): UserEntity | undefined {
-    return this.db.users.find(u => u.username.toLowerCase() === username.toLowerCase());
+    return this.db.users.find((u) => u.username.toLowerCase() === username.toLowerCase());
   }
 
   public findUserById(id: string): UserEntity | undefined {
-    return this.db.users.find(u => u.id === id);
+    return this.db.users.find((u) => u.id === id);
   }
 
   public createUser(username: string, email: string, fullName: string, passwordHash: string): UserEntity {
@@ -412,12 +676,13 @@ class SimulationDatabase {
     };
     this.db.users.push(newUser);
 
-    // Also auto-provision a primary bank account with ₹10,000 welcome credit
     const accNum = 'TX' + Math.floor(1000000000 + Math.random() * 9000000000).toString();
     const newAcc: AccountEntity = {
       id: 'acc-' + crypto.randomUUID(),
       userId: newUser.id,
       accountNumber: accNum,
+      accountType: 'Primary Checking',
+      ownerName: fullName,
       balance: 10000.0,
       status: 'ACTIVE',
       version: 0,
@@ -426,7 +691,7 @@ class SimulationDatabase {
     this.db.accounts.push(newAcc);
 
     const txRef = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
-    this.db.transactions.push({
+    this.db.transactions.unshift({
       id: crypto.randomUUID(),
       transactionRef: txRef,
       accountId: newAcc.id,
@@ -437,17 +702,7 @@ class SimulationDatabase {
       beforeBalance: 0,
       afterBalance: 10000.0,
       amount: 10000.0,
-      description: 'Account Opening Bonus Credit',
-      createdAt: new Date().toISOString(),
-    });
-
-    this.db.ledgers.push({
-      id: crypto.randomUUID(),
-      transactionRef: txRef,
-      accountId: newAcc.id,
-      entryType: 'CREDIT',
-      amount: 10000.0,
-      balanceSnapshot: 10000.0,
+      description: 'Account Opening Welcome Bonus',
       createdAt: new Date().toISOString(),
     });
 
@@ -465,27 +720,42 @@ class SimulationDatabase {
     if (!u) throw new Error('User not found');
     u.fullName = fullName;
     u.email = email;
+    // Also update ownerName on user's accounts
+    this.db.accounts.forEach((a) => {
+      if (a.userId === userId) a.ownerName = fullName;
+    });
     this.addAuditLog(userId, u.username, 'PROFILE_UPDATED', '127.0.0.1', 'TransactX Web Client', undefined, { fullName, email });
     this.save();
     return u;
   }
 
   // --- Accounts operations ---
+  public getAllAccounts(): AccountEntity[] {
+    return this.db.accounts;
+  }
+
   public getAccountsForUser(userId: string): AccountEntity[] {
-    return this.db.accounts.filter(a => a.userId === userId);
+    const user = this.findUserById(userId);
+    // If admin or manager, give access to all system accounts so admin dashboard has full power
+    if (user && (user.roles.includes('ROLE_ADMIN') || user.roles.includes('ROLE_MANAGER'))) {
+      return this.db.accounts;
+    }
+    return this.db.accounts.filter((a) => a.userId === userId);
   }
 
   public findAccountByNumber(accountNumber: string): AccountEntity | undefined {
-    return this.db.accounts.find(a => a.accountNumber === accountNumber);
+    return this.db.accounts.find((a) => a.accountNumber === accountNumber);
   }
 
-  public createAccount(userId: string, initialBalance: number): AccountEntity {
+  public createAccount(userId: string, initialBalance: number, accountType: string = 'Secondary Checking'): AccountEntity {
     const user = this.findUserById(userId);
     const accNum = 'TX' + Math.floor(1000000000 + Math.random() * 9000000000).toString();
     const newAcc: AccountEntity = {
       id: 'acc-' + crypto.randomUUID(),
       userId,
       accountNumber: accNum,
+      accountType,
+      ownerName: user?.fullName || 'Valued Customer',
       balance: initialBalance,
       status: 'ACTIVE',
       version: 0,
@@ -495,7 +765,7 @@ class SimulationDatabase {
 
     if (initialBalance > 0) {
       const txRef = 'TX-REF-' + crypto.randomUUID().slice(0, 15);
-      this.db.transactions.push({
+      this.db.transactions.unshift({
         id: crypto.randomUUID(),
         transactionRef: txRef,
         accountId: newAcc.id,
@@ -506,10 +776,10 @@ class SimulationDatabase {
         beforeBalance: 0,
         afterBalance: initialBalance,
         amount: initialBalance,
-        description: 'New Account Creation Initial Funding',
+        description: 'New Account Initial Funding',
         createdAt: new Date().toISOString(),
       });
-      this.db.ledgers.push({
+      this.db.ledgers.unshift({
         id: crypto.randomUUID(),
         transactionRef: txRef,
         accountId: newAcc.id,
@@ -523,6 +793,7 @@ class SimulationDatabase {
     this.addAuditLog(userId, user?.username, 'NEW_ACCOUNT_CREATED', '127.0.0.1', 'Web App', undefined, {
       accountNumber: accNum,
       initialBalance,
+      accountType,
     });
 
     this.save();
@@ -535,16 +806,16 @@ class SimulationDatabase {
   }
 
   public findAtmById(id: string): AtmEntity | undefined {
-    return this.db.atms.find(a => a.id === id);
+    return this.db.atms.find((a) => a.id === id);
   }
 
   public withdrawCash(accountNumber: string, amount: number, atmId: string, user: UserEntity): any {
     const acc = this.findAccountByNumber(accountNumber);
     if (!acc) throw new Error('Account not found: ' + accountNumber);
-    if (acc.balance < amount) throw new Error('Insufficient balance in account');
+    if (acc.balance < amount) throw new Error('Insufficient balance in account: current balance is ₹' + acc.balance.toFixed(2));
 
     const atm = this.findAtmById(atmId) || this.db.atms[0];
-    if (atm.cashBalance < amount) throw new Error('ATM machine has insufficient cash reserve');
+    if (atm.cashBalance < amount) throw new Error('ATM machine has insufficient cash reserve (Available: ₹' + atm.cashBalance.toFixed(2) + ')');
 
     // Calculate dispense denominations using greedy approach
     let remaining = amount;
@@ -564,7 +835,7 @@ class SimulationDatabase {
     }
 
     if (remaining > 0) {
-      throw new Error('Unable to dispense exact requested cash amount with available cassette notes');
+      throw new Error('Unable to dispense exact cash amount with current cassette notes');
     }
 
     const beforeBal = acc.balance;
@@ -600,7 +871,7 @@ class SimulationDatabase {
       createdAt: new Date().toISOString(),
     });
 
-    this.addAuditLog(user.id, user.username, 'ATM_WITHDRAWAL', '127.0.0.1', 'ATM Terminal #' + atm.id.slice(0, 4), undefined, {
+    this.addAuditLog(user.id, user.username, 'ATM_WITHDRAWAL', '127.0.0.1', atm.name, undefined, {
       accountNumber,
       amount,
       dispensedNotes,
@@ -628,7 +899,6 @@ class SimulationDatabase {
 
     const atm = this.findAtmById(atmId) || this.db.atms[0];
 
-    // Add notes to ATM cassette
     if (denominations) {
       for (const [k, v] of Object.entries(denominations)) {
         atm.denominations[k] = (atm.denominations[k] || 0) + (Number(v) || 0);
@@ -668,7 +938,7 @@ class SimulationDatabase {
       createdAt: new Date().toISOString(),
     });
 
-    this.addAuditLog(user.id, user.username, 'ATM_DEPOSIT', '127.0.0.1', 'ATM Terminal #' + atm.id.slice(0, 4), undefined, {
+    this.addAuditLog(user.id, user.username, 'ATM_DEPOSIT', '127.0.0.1', atm.name, undefined, {
       accountNumber,
       amount,
       denominations,
@@ -726,7 +996,7 @@ class SimulationDatabase {
       beforeBalance: srcBefore,
       afterBalance: src.balance,
       amount,
-      description: `Transfer to ${destAccNum}`,
+      description: `Transfer to ${dest.ownerName} (${destAccNum})`,
       createdAt: now,
     });
 
@@ -752,7 +1022,7 @@ class SimulationDatabase {
       beforeBalance: destBefore,
       afterBalance: dest.balance,
       amount,
-      description: `Transfer from ${sourceAccNum}`,
+      description: `Transfer from ${src.ownerName} (${sourceAccNum})`,
       createdAt: now,
     });
 
@@ -785,28 +1055,29 @@ class SimulationDatabase {
       status: 'SUCCESS',
       beforeBalance: srcBefore,
       afterBalance: src.balance,
-      message: `Transferred ₹${amount.toFixed(2)} to ${destAccNum} successfully`,
+      message: `Transferred ₹${amount.toFixed(2)} to ${dest.ownerName} (${destAccNum}) successfully`,
       timestamp: now,
     };
   }
 
   public getMiniStatement(accountNumber: string): TransactionEntity[] {
     return this.db.transactions
-      .filter(t => t.accountNumber === accountNumber)
-      .slice(0, 20);
+      .filter((t) => t.accountNumber === accountNumber)
+      .slice(0, 25);
   }
 
   // --- Admin operations ---
   public getAdminStats(): any {
-    const totalCustomers = this.db.users.filter(u => u.roles.includes('ROLE_CUSTOMER')).length;
+    const totalCustomers = this.db.users.filter((u) => u.roles.includes('ROLE_CUSTOMER')).length;
+    const totalAccounts = this.db.accounts.length;
     const totalTransactions = this.db.transactions.length;
-    const failedTransactions = this.db.transactions.filter(t => t.status === 'FAILED').length;
+    const failedTransactions = this.db.transactions.filter((t) => t.status === 'FAILED').length;
 
     const largestTransactions = this.db.transactions
       .slice()
       .sort((a, b) => b.amount - a.amount)
       .slice(0, 5)
-      .map(t => ({
+      .map((t) => ({
         transactionRef: t.transactionRef,
         accountNumber: t.accountNumber,
         amount: t.amount,
@@ -815,15 +1086,17 @@ class SimulationDatabase {
 
     return {
       totalCustomers,
+      totalAccounts,
       totalTransactions,
       failedTransactions,
-      avgResponseTimeMs: 18,
+      avgResponseTimeMs: 16,
       cacheStats: {
         Provider: 'Upstash / In-Memory Redis Engine',
-        'Active Sessions Cached': 3,
+        'Active Sessions Cached': 5,
         'OTP TTL Store': 'Active',
       },
       largestTransactions,
+      accounts: this.db.accounts,
     };
   }
 
@@ -838,8 +1111,7 @@ class SimulationDatabase {
     const initialBal = src.balance;
 
     if (lockingType === 'OPTIMISTIC') {
-      // Optimistic locking simulation: heavy concurrent contention triggers OptimisticLockingFailureException
-      const successRate = 0.18 + Math.random() * 0.08; // ~18-26%
+      const successRate = 0.18 + Math.random() * 0.08;
       const successfulRequests = Math.max(1, Math.round(totalRequests * successRate));
       const failedRequests = totalRequests - successfulRequests;
       const totalDebited = successfulRequests * amount;
@@ -856,10 +1128,9 @@ class SimulationDatabase {
         finalBalance: src.balance,
         durationMs: Math.round(45 + Math.random() * 30),
         explanation:
-          'Under heavy write contention, version checking (@Version) stops parallel threads from corrupting state. Blocked transactions fail fast with OptimisticLockingFailureException, guaranteeing total ACID integrity.',
+          'Under heavy write contention, version checking (@Version) stops parallel threads from corrupting state. Conflicting transactions fail fast with OptimisticLockingFailureException, guaranteeing total ACID integrity.',
       };
     } else {
-      // Pessimistic locking: row-level lock (SELECT FOR UPDATE) guarantees 100% sequential execution
       const affordable = Math.floor(src.balance / amount);
       const successfulRequests = Math.min(totalRequests, affordable);
       const failedRequests = totalRequests - successfulRequests;
@@ -885,15 +1156,15 @@ class SimulationDatabase {
     let logs = this.db.auditLogs.slice();
 
     if (action) {
-      logs = logs.filter(l => l.action.toLowerCase() === action.toLowerCase());
+      logs = logs.filter((l) => l.action.toLowerCase() === action.toLowerCase());
     }
     if (username) {
-      logs = logs.filter(l => l.username?.toLowerCase().includes(username.toLowerCase()));
+      logs = logs.filter((l) => l.username?.toLowerCase().includes(username.toLowerCase()));
     }
     if (search) {
       const q = search.toLowerCase();
       logs = logs.filter(
-        l =>
+        (l) =>
           l.action.toLowerCase().includes(q) ||
           l.username?.toLowerCase().includes(q) ||
           l.ipAddress.includes(q) ||
@@ -921,11 +1192,10 @@ class SimulationDatabase {
     if (format === 'csv') {
       const header = 'ID,Timestamp,Action,Username,IP Address,Device,TransactionRef\n';
       const rows = logs
-        .map(l => `"${l.id}","${l.createdAt}","${l.action}","${l.username || ''}","${l.ipAddress}","${l.device}","${l.transactionRef || ''}"`)
+        .map((l) => `"${l.id}","${l.createdAt}","${l.action}","${l.username || ''}","${l.ipAddress}","${l.device}","${l.transactionRef || ''}"`)
         .join('\n');
       return new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
     } else {
-      // JSON / formatted report
       const content = JSON.stringify(logs, null, 2);
       return new Blob([content], { type: 'application/json' });
     }

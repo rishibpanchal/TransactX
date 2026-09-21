@@ -316,11 +316,11 @@ export const AtmSimulator: React.FC = () => {
           <select
             value={selectedAccountNum}
             onChange={(e) => setSelectedAccountNum(e.target.value)}
-            className="bg-slate-900 border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-primary"
+            className="bg-slate-900 border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-primary max-w-md"
           >
             {accounts.map((a: any) => (
               <option key={a.id} value={a.accountNumber}>
-                {a.accountNumber} - [Bal: ₹{a.balance.toFixed(2)}]
+                {a.accountNumber} • {a.ownerName ? `${a.ownerName} - ` : ''}{a.accountType || 'Account'} (₹{Number(a.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })})
               </option>
             ))}
           </select>
@@ -466,10 +466,32 @@ export const AtmSimulator: React.FC = () => {
                   type="text"
                   value={destAccountNum}
                   onChange={(e) => setDestAccountNum(e.target.value)}
-                  placeholder="e.g. TX1000283741"
-                  className="w-full p-2.5 glass-input text-sm"
+                  placeholder="e.g. TX2222222222"
+                  className="w-full p-2.5 glass-input text-sm font-mono"
                   required
                 />
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  <span className="text-[10px] text-slate-500 self-center">Quick pick:</span>
+                  {[
+                    { label: 'John Smith (Everyday)', num: 'TX2222222222' },
+                    { label: 'Priya Sharma (Corporate)', num: 'TX4444444441' },
+                    { label: 'Marcus Vance (Escrow)', num: 'TX5555555551' },
+                    { label: 'Alex Rivera (Traveler)', num: 'TX3333333331' },
+                  ].map((p) => (
+                    <button
+                      key={p.num}
+                      type="button"
+                      onClick={() => setDestAccountNum(p.num)}
+                      className={`text-[10px] px-2 py-0.5 rounded border transition-all ${
+                        destAccountNum === p.num
+                          ? 'bg-primary/20 border-primary text-primary-light font-bold'
+                          : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
+                      }`}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Transfer Amount (₹)</label>
