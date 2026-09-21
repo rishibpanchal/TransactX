@@ -480,7 +480,7 @@ function getInitialSeed(): DatabaseSchema {
       ipAddress: '127.0.0.1',
       device: 'Mozilla Chrome (Windows)',
       newValues: { accountNumber: 'TX1111111111', accountType: 'Primary Checking', initialBalance: 50000.0 },
-      transactionRef: tx1,
+      transactionRef: transactions[0]?.transactionRef || 'TX-REF-INIT-001',
       createdAt: past(240),
     },
     {
@@ -492,7 +492,7 @@ function getInitialSeed(): DatabaseSchema {
       device: 'Mozilla Safari (iOS)',
       oldValues: { sourceAccount: 'TX1111111111', amount: 2000.0 },
       newValues: { destinationAccount: 'TX2222222222', newBalance: 48000.0 },
-      transactionRef: tx5,
+      transactionRef: transactions[7]?.transactionRef || 'TX-REF-INIT-005',
       createdAt: past(130),
     },
     {
@@ -503,7 +503,7 @@ function getInitialSeed(): DatabaseSchema {
       ipAddress: '127.0.0.1',
       device: 'Main Street ATM #01',
       newValues: { atmId: atm1Id, amount: 1000.0 },
-      transactionRef: tx6,
+      transactionRef: transactions[9]?.transactionRef || 'TX-REF-INIT-006',
       createdAt: past(50),
     },
     {
@@ -514,7 +514,7 @@ function getInitialSeed(): DatabaseSchema {
       ipAddress: '192.168.1.104',
       device: 'Enterprise Banking Gateway',
       newValues: { accountNumber: 'TX4444444441', amount: 400000.0 },
-      transactionRef: tx7,
+      transactionRef: transactions[26]?.transactionRef || 'TX-REF-INIT-007',
       createdAt: past(95),
     },
   ];
